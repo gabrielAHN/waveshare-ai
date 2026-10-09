@@ -1,0 +1,8 @@
+{
+  "token_endpoint": "https://auth.example.com/api/oidc/token",
+  "client_id": "waveshare-home",
+  "client_secret": "REPLACE-WITH-THE-CLIENT-SECRET-FROM-YOUR-PROVIDER",
+  "scope": "authelia.bearer.authz",
+  "audience": "https://ha.example.com/api/waveshare-sensors",
+  "resource_url": "https://ha.example.com/api/waveshare-sensors"
+}

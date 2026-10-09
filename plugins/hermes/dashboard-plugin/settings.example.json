@@ -1,0 +1,13 @@
+{
+  "issuer": "https://auth.example.com",
+  "jwks_uri": "https://auth.example.com/jwks.json",
+  "audience": "https://hermes.example.com/api/plugins/waveshare-sessions",
+  "client_id": "waveshare-bridge",
+  "scope": "hermes.sessions.read",
+  "command_scope": "hermes.helper.command",
+  "command_profiles": [
+    "helper",
+    "atlas",
+    "coding"
+  ]
+}

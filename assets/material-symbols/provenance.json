@@ -1,0 +1,27 @@
+{
+  "repository": "https://github.com/google/material-design-icons",
+  "commit": "bd8cb85bd4bad964fe6918f79665bb40c3a8efef",
+  "style": "Material Symbols Rounded",
+  "weight": 400,
+  "grade": 0,
+  "fill": 0,
+  "optical_size": 48,
+  "files": {
+    "auto_awesome.svg": {
+      "upstream_path": "symbols/web/auto_awesome/materialsymbolsrounded/auto_awesome_48px.svg",
+      "sha256": "db87d5913d500e87682dbc03f47df35d824804cb4da46c05e1b0a2d958e2c477"
+    },
+    "mic.svg": {
+      "upstream_path": "symbols/web/mic/materialsymbolsrounded/mic_48px.svg",
+      "sha256": "ddc74ce12a9fe5562ac54bf516471f40b866e6fe90715deead338bac3f0950d7"
+    },
+    "settings.svg": {
+      "upstream_path": "symbols/web/settings/materialsymbolsrounded/settings_48px.svg",
+      "sha256": "8386fbb62063bc02f7124347b17201d30a07a764a4d66233098108fdee95b559"
+    },
+    "sensors.svg": {
+      "upstream_path": "symbols/web/sensors/materialsymbolsrounded/sensors_48px.svg",
+      "sha256": "d59859a55640a70c16234463ffeb2d2ede027624229beac4ee06247d79193bce"
+    }
+  }
+}

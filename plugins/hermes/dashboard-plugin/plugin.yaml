@@ -1,0 +1,5 @@
+name: waveshare-sessions
+version: 1.2.0
+description: "Machine-authenticated read-only Hermes session usage and bot capabilities for Waveshare AI."
+author: gabrielAHN
+kind: standalone

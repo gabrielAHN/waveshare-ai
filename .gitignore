@@ -1,0 +1,56 @@
+# Build outputs (any build dir, including named-device ESP-IDF preset builds)
+build/
+build-*/
+devices/waveshare-esp32-s3-touch-amoled-1-8-v2/firmware/build*/
+managed_components/
+devices/waveshare-esp32-s3-touch-amoled-1-8-v2/firmware/sdkconfig
+devices/waveshare-esp32-s3-touch-amoled-1-8-v2/firmware/sdkconfig.old
+*.log
+tests/host/*_test
+tests/preview/*_preview
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+.pytest_cache/
+
+# Firmware images and dumps: never commit (factory backups can contain NVS secrets)
+*.bin
+*.elf
+*.map
+backups/
+evidence/
+*.ppm
+
+# Disposable E2E homes and local operator config
+# Local Wi-Fi name/password for tools/set_wifi.py --env (never commit; see .env.example)
+.env
+.env.*
+!.env.example
+.e2e-scratch/
+config/
+*.pem
+*.key
+*.crt
+*.token
+authelia-client.json
+settings.local.json
+*.plist.local
+.DS_Store
+
+# Hermes plugin settings are written at install time (waveshare-bridge plugin install).
+plugins/hermes/dashboard-plugin/settings.json
+devices/waveshare-esp32-s3-touch-amoled-1-8-v2/firmware/.cache/
+
+# Home Assistant token for the Sensor tile (tools/set-ha-token.sh)
+ha-token
+
+# Release packages (tools/package-release.sh)
+dist/
+matter-setup/build/
+matter-setup/managed_components/
+matter-setup/sdkconfig
+matter-setup/sdkconfig.old
+matter-setup/dependencies.lock
+# Your own bots' Ask outfits (plugins/hermes/KOTARO.md).
+plugins/hermes/firmware/bot_outfits_local.h

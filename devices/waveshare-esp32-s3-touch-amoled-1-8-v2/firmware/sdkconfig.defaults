@@ -1,0 +1,33 @@
+CONFIG_IDF_TARGET="esp32s3"
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_USE_MALLOC=y
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+CONFIG_FREERTOS_HZ=1000
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+
+# Voice upload throughput (PCM16 over pinned WebSocket TLS): larger TCP windows than the 4-MSS default.
+CONFIG_LWIP_TCP_SND_BUF_DEFAULT=23040
+CONFIG_LWIP_TCP_WND_DEFAULT=23040
+CONFIG_ESP_WIFI_TX_BA_WIN=16
+# The LAN (Mac<->board via the router/mesh) silently drops IP packets > ~1420 B (measured with
+# DF pings: 1418 OK, 1448 lost), so full 1440-byte TCP segments stall large uploads. 1360 keeps
+# packets at 1400 B.
+CONFIG_LWIP_TCP_MSS=1360
+
+# mbedTLS session buffers (16 KB IN + 4 KB OUT per TLS session) live in PSRAM, not the scarce internal
+# heap: a voice command overlapping a live/bots/phone poll during back-and-forth talk ran two
+# handshakes at once and could exhaust internal RAM (Wi-Fi/LWIP/DMA still need it).
+CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC=y
+# Wi-Fi/LWIP buffers in PSRAM first: rapid back-and-forth voice (480 KB uploads + polls) drove the
+# internal-heap low-water mark from ~50 KB to ~10 KB within 20 turns (measured on device).
+CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
+# PSRAM .bss: the UI state (chat history per bot) lives in external RAM via EXT_RAM_BSS_ATTR.
+CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY=y
+# Frame rate: 64-byte data-cache lines stream the PSRAM frames (render + panel stripes) faster; no
+# internal RAM cost (the cache size stays 32 KB).
+CONFIG_ESP32S3_DATA_CACHE_LINE_64B=y

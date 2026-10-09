@@ -1,0 +1,11 @@
+{
+  "now": 1790000000,
+  "sensors": {
+    "temperature": {"state": "22.4", "at": 1789999990},
+    "humidity": {"state": "48.0", "at": 1789999990},
+    "pressure": {"state": "1013.2", "at": 1789999990},
+    "pm1": {"state": "2", "at": 1789999700},
+    "pm25": {"state": "4", "at": 1789999700},
+    "pm10": {"state": "unavailable", "at": 1789990000}
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "bind": "10.0.0.10",
+  "port": 8098,
+  "name": "Waveshare AI bridge",
+  "mdns": true,
+  "allow_ip": null,
+  "providers": {
+    "hermes": {
+      "gateway": "http://127.0.0.1:9119",
+      "client_file": "authelia-client.json",
+      "sign_in": {
+        "client_id": "waveshare-pairing",
+        "groups": [
+          "admins",
+          "hermes_users"
+        ],
+        "required": true,
+        "issuer": null,
+        "oidc_paths": {
+          "device_authorization": "/api/oidc/device-authorization",
+          "token": "/api/oidc/token",
+          "userinfo": "/api/oidc/userinfo"
+        },
+        "host_header": null
+      },
+      "tiles": [
+        "sparkles",
+        "ask"
+      ],
+      "bots": [
+        "helper",
+        "atlas",
+        "coding"
+      ],
+      "bot_names": {
+        "helper": "Helper",
+        "atlas": "Atlas",
+        "coding": "Coding"
+      },
+      "gadget_sdk": {
+        "port": 8768,
+        "profiles": {
+          "helper": 8775,
+          "atlas": 8776,
+          "coding": 8777
+        }
+      },
+      "sparkles": {
+        "usage_interval": 5,
+        "ema_seconds": 60
+      }
+    },
+    "home_assistant": {
+      "client_file": "home-client.json",
+      "sign_in": {
+        "client_id": "waveshare-pairing",
+        "groups": [
+          "admins"
+        ],
+        "issuer": null,
+        "oidc_paths": null,
+        "host_header": null
+      }
+    }
+  }
+}

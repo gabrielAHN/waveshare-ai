@@ -1,0 +1,5 @@
+/* Host-only visual fixtures, never production gateway data. */
+#include <stdio.h>
+#include "home_render.h"
+static void save(home_ui*s,const char*name){uint16_t*p=malloc(SPARKLES_PIXELS*2);assert(p&&home_render(s,p,SPARKLES_PIXELS));char path[160];snprintf(path,sizeof path,"evidence/live-preview-%s.ppm",name);FILE*f=fopen(path,"wb");assert(f);fprintf(f,"P6\n368 448\n255\n");for(int i=0;i<SPARKLES_PIXELS;i++){unsigned v=p[i];fputc((v>>11)*255/31,f);fputc(((v>>5)&63)*255/63,f);fputc((v&31)*255/31,f);}fclose(f);free(p);}
+int main(void){home_ui s={.page=SPARKLES,.live_now_us=1000000};s.input.scene.time=3;save(&s,"blue-idle");s.live=(live_state){.valid=true,.count=3,.ids={11,22,33},.providers={LIVE_PROVIDER_ANTHROPIC,LIVE_PROVIDER_OPENAI_CODEX,LIVE_PROVIDER_OPENROUTER},.received_us=1000000};save(&s,"blue-active");s.page=HOME;save(&s,"home-active");s.live_now_us=7000000;s.page=SPARKLES;save(&s,"blue-stale");puts("HOST SIMULATION of idle, fixture-active and stale: not hardware photos/live evidence");}

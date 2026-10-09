@@ -1,0 +1,9 @@
+{
+  "name": "waveshare-sessions",
+  "label": "Waveshare Sessions",
+  "description": "Read-only session usage and bot capabilities for Waveshare AI",
+  "version": "1.2.0",
+  "icon": "Activity",
+  "tab": {"hidden": true},
+  "api": "plugin_api.py"
+}

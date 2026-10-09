@@ -1,0 +1,77 @@
+menu "Waveshare AI providers"
+    comment "Device core (always built): Home, Settings (Wi-Fi, Battery), Wi-Fi from the flash .env, display, touch, USB setup, power button"
+
+    config WAVESHARE_AI_PROVIDER_HERMES
+        bool "Hermes provider: Sparkles + Ask tiles, Hermes sign-in, Gadget SDK voice"
+        default y
+        help
+            Hermes through the host bridge (waveshare-bridge): the Sparkles and Ask tiles, the
+            Hermes Gadget SDK voice path and a phone sign-in through the auth gateway Hermes is
+            configured with. Adds the Hermes tab to Settings (titled with the label below).
+
+    config WAVESHARE_AI_HERMES_SPARKLES
+        bool "Hermes: Sparkles tile (animated water page, live Hermes session glows)"
+        depends on WAVESHARE_AI_PROVIDER_HERMES
+        default y
+        help
+            The Sparkles page. Works on its own; with the host bridge it also shows one glow per
+            open Hermes session and the "Session sparkle" toggle in Settings -> Sound.
+
+    config WAVESHARE_AI_HERMES_ASK
+        bool "Hermes: Ask tile (hold-to-talk voice to Hermes bots)"
+        depends on WAVESHARE_AI_PROVIDER_HERMES
+        default y
+        help
+            The Ask tile: hold-to-talk voice commands to your Hermes bots through the host bridge
+            gadget front to the stock Gadget SDK in each bot's Hermes gateway profile. Per-bot quota
+            gating comes from the waveshare-sessions plugin. Includes the completion sound; needs
+            the Hermes sign-in.
+
+    config WAVESHARE_AI_GATEWAY_PORT
+        int "Ask voice: bridge gadget front port"
+        depends on WAVESHARE_AI_HERMES_ASK
+        default 8768
+
+    config WAVESHARE_AI_HERMES_ACCOUNT_NAME
+        string "Hermes: sign-in label (Settings > Hermes tab title)"
+        default "Hermes"
+        help
+            The name of the account the Hermes phone QR signs in to (the auth gateway behind your
+            Hermes bridge provider). Shown as the Hermes tab title, "<name>: signed in as",
+            "<name>: not signed in" and in the sign-out warning; nothing else depends on it.
+            Printable ASCII, 1-16 characters (the build fails otherwise). A name longer than 9
+            characters is left out of the "signed in as" line so it never overlaps "Sign out".
+            Host tests take it as -DWAVESHARE_AI_HERMES_ACCOUNT_NAME (main/account.h).
+
+    config WAVESHARE_AI_PROVIDER_HOME_ASSISTANT
+        bool "Home Assistant provider: Sensor tile with its own sign-in (opt-in)"
+        default n
+        help
+            The Sensor tile: air-quality readings from Home Assistant, fetched by the host bridge
+            (GET /v1/home) with its own credential. Has its OWN phone sign-in (its own gateway and
+            groups on the bridge; when both providers use the same gateway one QR signs in to both)
+            and adds the Home Assistant tab to Settings.
+
+    config WAVESHARE_AI_HOME_ASSISTANT_ACCOUNT_NAME
+        string "Home Assistant: sign-in label (Settings > Home Assistant tab title)"
+        depends on WAVESHARE_AI_PROVIDER_HOME_ASSISTANT
+        default "Home Assistant"
+        help
+            The name of the account the Home Assistant phone QR signs in to. Same rules as the
+            Hermes label: printable ASCII, 1-16 characters. Host tests take it as
+            -DWAVESHARE_AI_HOME_ASSISTANT_ACCOUNT_NAME (main/account.h).
+endmenu
+
+menu "Waveshare AI device"
+    comment "Core device settings (always built): power button, sleep, battery"
+
+    config WAVESHARE_AI_AUTO_SLEEP_MIN
+        int "Battery: auto sleep after this many minutes without input (0 = never)"
+        range 0 120
+        default 0
+        help
+            On battery only, the board goes to sleep (panel off, Wi-Fi off, light sleep) after this
+            many minutes without a touch or a button press. Never on USB power and never while an Ask
+            turn is recording or running. 0 = never. A short press on the power or BOOT button wakes
+            it. Host tests take it as -DWAVESHARE_AI_AUTO_SLEEP_MIN (main/sleep_policy.h).
+endmenu

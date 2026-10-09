@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "waveshare-bridge"
+version = "0.1.0"
+description = "LAN bridge between a Waveshare AI board and its configured provider hosts"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+  "aiohttp>=3.9,<4",
+  "zeroconf>=0.130",
+]
+
+[project.urls]
+Homepage = "https://github.com/gabrielAHN/waveshare-ai"
+
+[project.scripts]
+waveshare-bridge = "waveshare_bridge.cli:main"
+
+[tool.setuptools]
+packages = ["waveshare_bridge"]

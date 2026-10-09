@@ -1,0 +1,8 @@
+{
+  "token_endpoint": "https://auth.example.com/api/oidc/token",
+  "client_id": "waveshare-bridge",
+  "client_secret": "REPLACE-WITH-THE-CLIENT-SECRET-FROM-YOUR-PROVIDER",
+  "scope": "hermes.sessions.read",
+  "command_scope": "hermes.helper.command",
+  "audience": "https://hermes.example.com/api/plugins/waveshare-sessions"
+}
