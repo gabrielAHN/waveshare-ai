@@ -70,7 +70,7 @@ enum {HOME_MOTION_NONE,HOME_MOTION_DRAG,HOME_MOTION_BACK,HOME_MOTION_OUT,HOME_MO
 /* The centered circular Home-reveal aperture; w == h and n == 2 for every active frame. */
 #define HOME_BLOB_HAS_ALPHA 1
 typedef struct {float cx,cy,w,h,n,alpha;} home_blob;
-#define HOME_PULL_BUF 24   /* samples a pull-zone touch can wait (150 ms at 100 Hz is 15) */
+#define HOME_PULL_BUF 24   /* bounded samples retained for a reserved pull-zone contact */
 typedef struct {
  direct_input input;
  live_state live;int64_t live_now_us;
@@ -80,8 +80,8 @@ typedef struct {
  int home_slide_from;
  bool down,edge,consumed;
  /* The Home pull (W14, home_pull_classify): pull_wait = this touch started in the pull zone of a page
-  * and is not classified yet; its samples wait in pull_t/x/y (pull_n) and reach the page, at their own
-  * times, only if it is not a pull. edge = it is the Home pull (pull_us: since when). blob = the page's
+  * and remains reserved; up to HOME_PULL_BUF samples are retained in pull_t/x/y without capacity
+  * ending its eligibility. edge = it is the Home pull (pull_us: since when). blob = the page's
   * shape now; blob_from = its shape at the release, blob_ax/ay = where the finger took the page,
   * blob_f0/dx0 = the travel a spring back starts from. */
  bool pull_wait;unsigned char pull_n;home_page pull_page;
@@ -600,8 +600,8 @@ static inline void home_open_settings(home_ui*s){
  * Every position is a function of the time since its slide started, never a per-sample step: a slow
  * poll or a dropped frame changes how often things are drawn, not where they are.
  * The Home pull (W14): on any page but Home, a touch that starts
- * in the reserved bottom edge (y >= HOME_PULL_ZONE_Y) and travels >= HOME_PULL_DECIDE_PX UP with
- * up > 1.5|dx| before it does anything else. Held, a circle fixed at panel centre reveals real Home
+ * in the reserved bottom edge (y >= HOME_PULL_ZONE_Y) and, at any time during that contact, travels
+ * >= HOME_PULL_DECIDE_PX UP with up > 1.5|dx|. Held, a circle fixed at panel centre reveals real Home
  * and expands with upward distance (home_blob_pull); released far or fast enough it finishes covering
  * the panel within 240 ms. Otherwise it contracts to zero and restores the original page within 220 ms.
  * HOME_PULL_ZONE_Y 420 is the existing rounded-panel safe strip. It reserves taps, holds, sideways
@@ -616,8 +616,7 @@ static inline void home_open_settings(home_ui*s){
  *     bubbles and the welcome Kotaro in the zone; lower (~360) leaves the finger < 88 px to travel. */
 #define HOME_PULL_ZONE_Y 420
 #define HOME_PULL_CENTER_Y 224
-#define HOME_PULL_DECIDE_PX 12     /* travel that classifies a zone touch (= HELPER_ARM_SLOP) ... */
-#define HOME_PULL_WAIT_US 150000   /* ... or this long still: then it is the page's (a hold, a tap) */
+#define HOME_PULL_DECIDE_PX 12     /* net travel that promotes a reserved zone touch (= HELPER_ARM_SLOP) */
 #define HOME_PULL_FLICK_SPEED .5f  /* upward speed magnitude (px/ms over HOME_SPEED_US) */
 #define HOME_PULL_FLICK_PX 24
 #define HOME_BLOB_N0 2.f           /* the reveal is circular from its first active frame */
@@ -847,23 +846,23 @@ static inline void home_slide_tick(home_ui*s,int64_t now){
 static inline bool home_motion_moving(const home_ui*s){
  return (s->page==HOME&&s->home_slide_from)||(home_slide_valid(s)&&s->slide_kind!=HOME_MOTION_DRAG);
 }
-/* A touch that started in the pull zone, one sample later (down: added to its waiting samples). It is
- * the Home pull once it has travelled >= HOME_PULL_DECIDE_PX up with up > 1.5|dx| (edge, the blob
- * starts: a new motion id, so a new snapshot). Other motion, a hold, or lift in the bottom strip is
- * consumed by that reserved strip; lower-third touches never enter this classifier. */
+/* A touch that started in the pull zone (down samples are retained up to HOME_PULL_BUF). It is the
+ * Home pull once its net travel reaches HOME_PULL_DECIDE_PX up with up > 1.5|dx| (edge, the blob
+ * starts: a new motion id, so a new snapshot). Time, retained-sample capacity and earlier direction
+ * do not end eligibility; an unqualified lift is consumed by the reserved strip. */
 static inline bool home_pull_classify(home_ui*s,int64_t now,bool down,int x,int y){
  if(down&&s->pull_n<HOME_PULL_BUF){int k=s->pull_n++;s->pull_t[k]=now;s->pull_x[k]=(short)x;s->pull_y[k]=(short)y;}
  int dx=x-s->start_x,dy=y-s->start_y,up=-dy;
  bool same=s->page==s->pull_page;
- if(down&&same&&!s->consumed&&up>=HOME_PULL_DECIDE_PX&&2*up>3*abs(dx)){
-  s->pull_wait=false;s->edge=true;
-  s->slide_kind=HOME_MOTION_DRAG;s->slide_page=s->page;s->motion_id++;s->page_y=0;
-  s->pull_us=now;s->blob_ax=(short)s->start_x;s->blob_ay=(short)s->start_y;
-  s->note.pull=true;s->note.wait_ms=(int)((now-s->start_us)/1000);
+ if(down&&same&&!s->consumed){
+  if(up>=HOME_PULL_DECIDE_PX&&2*up>3*abs(dx)){
+   s->pull_wait=false;s->edge=true;
+   s->slide_kind=HOME_MOTION_DRAG;s->slide_page=s->page;s->motion_id++;s->page_y=0;
+   s->pull_us=now;s->blob_ax=(short)s->start_x;s->blob_ay=(short)s->start_y;
+   s->note.pull=true;s->note.wait_ms=(int)((now-s->start_us)/1000);
+  }
   return false;
  }
- if(down&&same&&!s->consumed&&abs(dx)<HOME_PULL_DECIDE_PX&&abs(dy)<HOME_PULL_DECIDE_PX&&
-    now-s->start_us<HOME_PULL_WAIT_US&&s->pull_n<HOME_PULL_BUF)return false;  /* still waiting */
  s->pull_wait=false;
  s->consumed=true;
  return false;

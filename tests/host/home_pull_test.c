@@ -257,7 +257,7 @@ static void thresholds(void) {
 #ifndef PULL_BASE_ONLY
 /* ---- B. Classification: 12 px up with up > 1.5|dx| = pull; other bottom input is reserved. ---- */
 static void classification(void) {
-  assert(HOME_PULL_ZONE_Y == ZONE && HOME_PULL_DECIDE_PX == 12 && HOME_PULL_WAIT_US == 150000);
+  assert(HOME_PULL_ZONE_Y == ZONE && HOME_PULL_DECIDE_PX == 12);
   for (int k = 0; k < PAGES; k++) {
     home_ui s = ready(pages[k]);
     sample(&s, true, 184, 440); assert(s.pull_wait && !s.edge && s.slide_kind == HOME_MOTION_NONE);
@@ -272,22 +272,25 @@ static void classification(void) {
   assert(!s.pull_wait && s.edge);                                               /* 12 up, 7 across */
   lift(&s); idle(&s, 400);
   s = ready(SETTINGS); sample(&s, true, 184, 440); sample(&s, true, 192, 428);
-  assert(!s.pull_wait && !s.edge && s.consumed);                                /* diagonal: reserved */
+  assert(s.pull_wait && !s.edge && !s.consumed);                                /* diagonal: still reserved */
+  sample(&s, true, 184, 400); assert(!s.pull_wait && s.edge);                    /* later net UP qualifies */
   lift(&s); idle(&s, 100);
   s = ready(SETTINGS); sample(&s, true, 184, 440); sample(&s, true, 196, 439);
-  assert(!s.pull_wait && !s.edge && s.consumed); lift(&s);                      /* 12 across: reserved */
+  assert(s.pull_wait && !s.edge && !s.consumed);                                /* 12 across: still reserved */
+  sample(&s, true, 184, 400); assert(!s.pull_wait && s.edge); lift(&s);           /* later net UP qualifies */
   s = ready(SETTINGS); sample(&s, true, 184, 440); sample(&s, true, 184, 447);
   assert(s.pull_wait && !s.edge); lift(&s);                                     /* short down then lift */
   s = ready(SETTINGS); sample(&s, true, 184, 440); sample(&s, true, 195, 429);
-  assert(s.pull_wait); sample(&s, true, 196, 429); assert(!s.pull_wait && !s.edge); lift(&s);
+  assert(s.pull_wait); sample(&s, true, 196, 429); assert(s.pull_wait && !s.edge && !s.consumed);
+  sample(&s, true, 184, 400); assert(s.edge); lift(&s);
   /* a fast first upward sample classifies at once */
   s = ready(SETTINGS); sample(&s, true, 184, 440); sample(&s, true, 190, 400); assert(s.edge); lift(&s); idle(&s, 600);
-  /* still: undecided for 140 ms, consumed at 150 ms */
+  /* Elapsed time does not expire a reserved contact; it can qualify later. */
   s = ready(SETTINGS); sample(&s, true, 184, 440); int64_t t0 = t;
   while (t - t0 < 140000) { sample(&s, true, 184, 440 - (int)((t - t0) / 30000)); assert(s.pull_wait); }
-  sample(&s, true, 184, 436); assert(t - t0 == 150000 && !s.pull_wait && !s.edge && s.consumed);
-  sample(&s, true, 184, 400); assert(!s.edge && s.slide_kind == HOME_MOTION_NONE);
-  lift(&s); assert(s.page == SETTINGS);
+  sample(&s, true, 184, 436); assert(t - t0 == 150000 && s.pull_wait && !s.edge && !s.consumed);
+  sample(&s, true, 184, 400); assert(s.edge && s.slide_kind == HOME_MOTION_DRAG);
+  lift(&s); idle(&s, 300); assert(s.page == SETTINGS);                         /* qualified, but slow/partial release cancels */
   /* a lift while waiting is reserved and does not tap Sensor */
   s = ready(SENSORS); sample(&s, true, 184, 440); lift(&s); assert(!s.pull_wait && !s.sensors.refresh);
   /* a page switched (USB) while the touch waits: the touch is spent, neither the pull nor the page's */

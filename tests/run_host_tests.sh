@@ -28,8 +28,8 @@ else
   suites=()
   for f in "$ROOT"/tests/host/*_test.c; do suites+=("$(basename "$f" .c)"); done
 fi
-# Keep the panel, completion sound, carousel, Home pull and blob regression suites in the default run.
-for required in panel_power_test completion_click_test home_motion_test home_pull_test home_blob_test home_accent_exit_test home_center_exit_test; do
+# Keep the panel, completion sound, carousel, Home pull/contact and blob regression suites in the default run.
+for required in panel_power_test completion_click_test home_motion_test home_pull_test home_bottom_consistency_test home_bottom_contact_test home_blob_test home_accent_exit_test home_center_exit_test; do
   [[ -f "$ROOT/tests/host/$required.c" ]] || { echo "missing required suite: $required"; exit 1; }
 done
 pass=0
